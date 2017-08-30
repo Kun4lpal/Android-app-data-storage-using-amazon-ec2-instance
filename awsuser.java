@@ -1,7 +1,8 @@
-package com.example.kupaliwa.SUNotes;
+package com.example.kupal.nodeinfoservice;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.util.Base64;
 
 import org.json.JSONArray;
@@ -17,7 +18,7 @@ import java.util.HashMap;
  * Created by kunal on 4/13/17.
  */
 
-public class User {
+public class awsuser {
     public String name;
     public String password;
     //temporary information
@@ -31,16 +32,16 @@ public class User {
     public ArrayList<DiaryEntry> Diaryentries;
     public ArrayList<Location> locations;
     private Location detailViewLocation;
-    private static User instance=null;
+    private static awsuser instance=null;
     public String temperature;
   public Bitmap profilepicture;
     public String profilePicString;
 
 
     //constructor
-    private User() {
+    private awsuser() {
         utility = new Utility();
-        url = "http://ec2-34-205-50-71.compute-1.amazonaws.com:8080/";  // this is the amazon ec2 instace domain id
+        url = "http://ec2-34-205-50-71.compute-1.amazonaws.com:8080/";  // this is the amazon ec2 instance domain id
         Diaryentries = new ArrayList<>();
         locations = new ArrayList<>();
         email = "";
@@ -53,9 +54,9 @@ public class User {
     {
         instance=null;
     }
-    public static User getInstance(){
+    public static awsuser getInstance(){
         if(instance==null)
-            instance=new User();
+            instance=new awsuser();
         return instance;
     }
 
@@ -77,7 +78,7 @@ public class User {
             sendObject.put("image",null);
 
             JSONObject js = new JSONObject(sendObject);
-            utility.sendHttPostRequestTwo(url + "newUser", js);
+            utility.sendHttPostRequest(url + "newUser", js);
 
         }
 
@@ -133,7 +134,7 @@ public class User {
                 String DiaryEntry = (String) movieJsonObj.get("data");
                 String title = (String) movieJsonObj.get("title");
 
-                com.example.shishirbijalwan.myapplication.DiaryEntry sr= new DiaryEntry();
+                com.example.kupal.nodeinfoservice.DiaryEntry sr= new DiaryEntry();
                 sr.data=DiaryEntry;
                 sr.Title=title;
                 Diaryentries.add(sr);
@@ -166,75 +167,10 @@ public class User {
 
         hs.put("title",Diaryentries.get(position).Title);
         JSONObject js= new JSONObject(hs);
-        utility.sendHttPostRequestTwo(url + "deleteDiaryEntry", js);
+        utility.sendHttPostRequest(url + "deleteDiaryEntry", js);
 
         Diaryentries.remove(position);
     }
-
-    //function to get all locations
-    public void getAlllocations() {
-        locations.clear();
-        String receivedMsg = utility.downloadJSONusingHTTPGetRequest(url + "getAllLocation");
-        System.out.println(receivedMsg);
-        try {
-            JSONArray jsonArray = new JSONArray(receivedMsg);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject movieJsonObj = (JSONObject) jsonArray.get(i);
-                Location temLocation = new Location();
-
-                temLocation.locationName = (String) movieJsonObj.get("location");
-                temLocation.Description = (String) movieJsonObj.get("description");
-                temLocation.ImageUrl = (String) movieJsonObj.get("imageUrl");
-                temLocation.VideoUrl = (String) movieJsonObj.get("video");
-                temLocation.Logitute = Double.parseDouble(movieJsonObj.get("log").toString());
-                temLocation.Latitue = Double.parseDouble(movieJsonObj.get("lat").toString());
-                temLocation.rating = Double.parseDouble(movieJsonObj.get("rating").toString());
-                temLocation.numberOfUsers = Integer.parseInt(movieJsonObj.get("numberOfUsers").toString());
-                locations.add(temLocation);
-            }
-
-
-        } catch (Exception e) {
-
-            System.out.println(e.getMessage());
-        }
-
-
-
-    }
-
-
-    //function to getAlocation
-    public void getAlocations(int position) {
-
-        String nameOfLocation = locations.get(position).locationName;
-        String receivedMsg = utility.downloadJSONusingHTTPGetRequest(url + "getALocation/" + nameOfLocation);
-        System.out.println(receivedMsg);
-        try {
-            JSONArray jsonArray = new JSONArray(receivedMsg);
-            for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject movieJsonObj = (JSONObject) jsonArray.get(i);
-                Location temLocation = new Location();
-
-                temLocation.locationName = (String) movieJsonObj.get("location");
-                temLocation.Description = (String) movieJsonObj.get("description");
-                temLocation.ImageUrl = (String) movieJsonObj.get("imageUrl");
-                temLocation.VideoUrl = (String) movieJsonObj.get("video");
-                temLocation.Logitute = Double.parseDouble(movieJsonObj.get("log").toString());
-                temLocation.Latitue = Double.parseDouble(movieJsonObj.get("lat").toString());
-                temLocation.rating = Double.parseDouble(movieJsonObj.get("rating").toString());
-                temLocation.numberOfUsers = Integer.parseInt(movieJsonObj.get("numberOfUsers").toString());
-                detailViewLocation = temLocation;
-            }
-
-
-        } catch (Exception e) {
-
-            System.out.println(e.getMessage());
-        }
-
-    }
-
 
     //send update image request()
 
@@ -247,7 +183,7 @@ public class User {
         sendObject.put("image", getStringFromBitmap(profilepicture));
 
         JSONObject js = new JSONObject(sendObject);
-        utility.sendHttPostRequestTwo(url + "updateImage", js);
+        utility.sendHttPostRequest(url + "updateImage", js);
 
 
     }
